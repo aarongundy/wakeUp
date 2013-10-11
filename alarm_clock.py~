@@ -1,0 +1,148 @@
+#!/usr/bin/python
+
+# Alarm clock 
+
+from time import localtime
+from optparse import OptionParser
+
+alarmList = []
+alarmtime = str
+name = str
+schedule = str
+
+def viewAlarms():
+    print
+    
+    print "Enabled\tName\tTime\tDays"
+    print "---------------------------------------"    
+    
+    if len(alarmList)>=1:
+        length = int(len(alarmList))
+        #print length
+        #print alarmList
+        for i in range(length):
+            print alarmList[i][0], "\t", alarmList[i][1],"\t", alarmList[i][2],"\t",alarmList[i][3]    
+        print
+    else:
+        print "The alarm array is empty"
+
+    
+def readAlarmData():
+    count = 0
+    f = open("alarmdata")
+    f.readline()
+    
+    while 1:
+        line = f.readline().strip()
+        if not line:break
+        alarmList.append((line.split("|",4)))
+        #print alarmList[count]
+        count += 1
+        
+    f.close()
+    viewAlarms()
+
+def writeAlarmData():
+    f = open("alarmdata","w")
+
+    f.write("Alarm\n")
+    
+    for i in range(len(alarmList)):
+        for j in range(4):
+            if j<=3:
+                f.write(str(alarmList[i][j])+"|")
+            if j == 4:
+			f.write(alarmList[i][j])
+        f.write("\n")
+    f.close()
+    
+def showActiveAlarms():
+    print
+    
+    count = int(len(alarmList[0]))
+    
+    for i in range(count-1):
+        if alarmList[0][i] == True:
+            print alarmList[1][i],"   ", alarmList[2][i],"   ",alarmList[3][i]
+
+def newAlarm():
+    print
+    name = raw_input("Enter the name of the alarm: ")
+    alarmtime =inputTime()
+    schedule = inputDays()
+    print name
+    print alarmtime
+    print schedule
+    alarmList.append([True,name,alarmtime,schedule])
+    print alarmList
+    writeAlarmData()
+    return
+
+def inputTime():
+    alarmtime = raw_input("Enter the time: ")
+    #alarmtime = alarmtime.split(":",2)
+    return alarmtime
+    
+def inputDays():
+    print "Enter the days it will run: "
+    print "\n_______Days of the Week________"
+    print "\n'sun' = Sunday"
+    print "'mon' = Monday"
+    print "'tues' = Tuesday"
+    print "'wed' = Wednesday"
+    print "'thurs' = Thursday"
+    print "'fri' = Friday"
+    print "'sat' = Saturday"
+    print "\n_______Intelligent Days________"
+    print "\n'wkdys' = Weekdays"
+    print "'wknds' = Weekends"        
+    
+    schedule = raw_input("Enter the days it will run: ")
+    return schedule    
+    
+#def printOptions():
+
+
+#parser = OptionParser()
+#parser.add_option("-v","-viewall",help="Shows all the alarms",action="callback",callback=viewAlarms())
+#(options, args) = parser.parse_args()
+
+#________Begin Program____________
+if __name__ == "__main__":
+    print "Welcome to the alarm clock"
+    
+    readAlarmData()
+    
+    run = True
+
+    while run == True:
+        time_now = localtime()
+    
+        print "Current system time is: " + str(time_now.tm_hour) + ":" + str(time_now.tm_min)
+    
+        mode = raw_input("Enter a mode: ")
+    
+        try: 
+            if int(mode) == 1:
+                viewAlarms()
+            if int(mode) == 2:
+                newAlarm()
+            if int(mode) == 3:
+                showActiveAlarms()
+        except ValueError:
+            if mode.lower == "v":
+                viewAlarms()
+            if mode.lower == "n":
+                newAlarm()
+            if mode.lower == "a":
+                showActiveAlarms()
+            if mode.lower() == "quit":
+                print "Bye!"
+                raw_input()
+                run = False  
+            if mode.lower() == "help":
+                printOptions()
+    
+
+
+    
