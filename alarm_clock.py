@@ -8,8 +8,10 @@ from time import localtime
 import datetime
 from optparse import OptionParser
 import read_write
+import os
 # import alarmthreading
-from alarmclass import *  
+from alarmclass import *
+# import alarm_gui  
 
 def viewAlarms(alarmList):
     print ("")
@@ -107,52 +109,22 @@ def newAlarm():
         name = raw_input("Enter the name of the alarm: ")
         if name in alarmList:
             print "Error. Can Not Be The Same Name As Another Alarm"
-    
-    alarmtime = inputTime()
-    schedule = inputDays()
-    print "You created a new alarm:",(name)
-    print"Time: %2s:%2s"%(str(alarmtime[0]).zfill(2),str(alarmtime[1]).zfill(2))
-    print (schedule)
-    alarmList.append(Alarm(True,name,alarmtime[0],alarmtime[1],schedule))
+    new_alarm = Alarm(True,name)
+    new_alarm.input_time()
+    new_alarm.input_days()
+    print "You created a new alarm:",(new_alarm)
+    alarmList.append(new_alarm)
     print viewAlarms(alarmList)
     read_write.writeAlarmData(alarmList)
     # nextAlarm(alarmList)
     return
 
-def inputTime():
-    #alarmtime = alarmtime.split(":",2)
-    while True:
-        alarmtime = raw_input("Enter the time: ")
-        alarmtime = alarmtime.split(":")
-        alarmtime[0] = int(alarmtime[0])
-        alarmtime[1] = int(alarmtime[1])
-        if alarmtime[0]>= 0 and alarmtime[0]<=23 and alarmtime[1]>=0 and alarmtime[1]<=59:
-            break
-        else:
-            print "**Please enter a valid time in 24 hour format**"
-    return alarmtime
-
-def inputDays():
-    print ("Enter the days it will run: ")
-    print ("\n_______Days of the Week________")
-    print ("\n'sun' = Sunday")
-    print ("'mon' = Monday")
-    print ("'tues' = Tuesday")
-    print ("'wed' = Wednesday")
-    print ("'thurs' = Thursday")
-    print ("'fri' = Friday")
-    print ("'sat' = Saturday")
-    print ("\n_______Intelligent Days________")
-    print ("\n'wkdys' = Weekdays")
-    print ("'wknds' = Weekends"   )
-
-    schedule = raw_input("Enter the days it will run: ")
-    return schedule
-
 def printOptions():
     print "\n   Alarm Clock Options"
-    print "\'q\',\'quit\' Quit"
-
+    print "\'q\'    \'quit\'    Quit"
+    print "\'v\'    \'view\'    View Active Alarms"
+    print "\'a\'    \'all\'     View All Alarms"
+    print "\'t\'    \'toggle\'  Toggle Alarms on or off"
 
 #parser = OptionParser()
 #parser.add_option("-v","-viewall",help="Shows all the alarms",action="callback",callback=viewAlarms())
@@ -160,6 +132,8 @@ def printOptions():
 
 #________Begin Program____________
 if __name__ == "__main__":
+    os.system('cls' if os.name=='nt' else 'clear')
+
     alarmList = read_write.readAlarmData()
     alarmtime = str
     name = str
@@ -174,36 +148,56 @@ if __name__ == "__main__":
     
     print
 
-    time_now = localtime()
-    
-    print ("Current system time is: " + str(time_now.tm_hour).zfill(2) + ":" + str(time_now.tm_min).zfill(2))
-
     #alarmThread = alarmthreading()
     # alarmthreading.alarm.start()
-    print ""
     print viewAlarms(alarmList)
+
+    print 
 
     run = True
 
     while run == True:
+        time_now = localtime()
+    
+        print ("Current system time is: " + str(time_now.tm_hour).zfill(2) + ":" + str(time_now.tm_min).zfill(2))
+
+        print
+
         nextAlarm(alarmList)
         mode = raw_input("Enter a mode: ").strip()
 
         mode = mode.lower()
 
+        os.system('cls' if os.name=='nt' else 'clear') #clears the terminal
+
         try:
             if mode == "quit" or mode == 'q':
-                print ("Bye!")
-                raw_input()
+                # print ("Bye!")
+                # raw_input()
                 # alarmthreading.AlarmClockTimer("","","").stop()
                 run = False
             elif mode == 'all' or mode == 'a':
                 viewAlarms(alarmList)
             # elif mode == "help":
                 # printOptions()
-            elif mode =="e":
+            elif mode =="t" or mode == "toggle":
                 alarmList = onOff(alarmList)
                 read_write.writeAlarmData(alarmList)
+            elif mode == "e" or mode == "edit":
+                viewAlarms(alarmList)
+                alarm_name = raw_input("Enter the alarm you would like to edit: ")
+                for alarm in alarmList:
+                    if alarm.name ==alarm_name:
+                        alarm = alarm.edit()
+                        break
+            elif mode == "d" or mode == "delete":
+                viewAlarms(alarmList)
+                alarm_name = raw_input("Enter the alarm you would like to delete: ")
+                for i in range(0,len(alarmList)):
+                    alarm = alarmList[i]
+                    if alarm.name ==alarm_name:
+                        print alarmList.pop(i)
+                        break
             elif mode == "n" or mode == "new":
                 newAlarm()
                 read_write.writeAlarmData(alarmList)
