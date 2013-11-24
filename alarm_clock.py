@@ -84,10 +84,10 @@ def nextAlarm(alarmList):
                 todaysAlarms.append(alarm)
     # print todaysAlarms
     if len(todaysAlarms)>0:
-        next_alarm = todaysAlarms[0].hour,todaysAlarms[0].minute
+        next_alarm = todaysAlarms[0]
         for alarm in todaysAlarms:
-            if alarm.hour< next_alarm[0] and alarm.minute< next_alarm[1]:
-                next_alarm = [alarm.hour,alarm.minute]
+            if not next_alarm.earlier_than(alarm):
+                next_alarm = alarm
             #Start the thread that watches the time
         # alarmThread = alarmthreading.AlarmClockTimer(next_alarm[0],next_alarm[1],"bomb_siren.wav")
         # alarmThread.start()
@@ -150,7 +150,8 @@ def inputDays():
     return schedule
 
 def printOptions():
-    print "options go here"
+    print "\n   Alarm Clock Options"
+    print "\'q\',\'quit\' Quit"
 
 
 #parser = OptionParser()
@@ -196,7 +197,7 @@ if __name__ == "__main__":
                 raw_input()
                 # alarmthreading.AlarmClockTimer("","","").stop()
                 run = False
-            elif mode == 'view' or mode == 'v':
+            elif mode == 'all' or mode == 'a':
                 viewAlarms(alarmList)
             # elif mode == "help":
                 # printOptions()
@@ -206,7 +207,7 @@ if __name__ == "__main__":
             elif mode == "n" or mode == "new":
                 newAlarm()
                 read_write.writeAlarmData(alarmList)
-            elif mode== "a":
+            elif mode== "v" or mode == "view":
                 showActiveAlarms(alarmList)
             elif mode== "h" or mode == "help":
                 printOptions()
